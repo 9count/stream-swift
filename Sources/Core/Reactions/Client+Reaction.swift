@@ -54,9 +54,10 @@ extension Client {
                                                                    extraData: T,
                                                                    userTypeOf: U.Type,
                                                                    targetsFeedIds: FeedIds = [],
+                                                                   targetFeedsExtraData: [String: String]? = nil,
                                                                    completion: @escaping ReactionCompletion<T, U>) -> Cancellable {
-        let endpoint = ReactionEndpoint.add(activityId, parentReactionId, kind, extraData, targetsFeedIds)
-        
+        let endpoint = ReactionEndpoint.add(activityId, parentReactionId, kind, extraData, targetsFeedIds, targetFeedsExtraData)
+
         return request(endpoint: endpoint) {  [weak self] result in
             if let self = self  {
                 result.parseReaction(self.callbackQueue, completion)
@@ -79,12 +80,14 @@ extension Client {
                                      kindOf kind: ReactionKind,
                                      userTypeOf userType: U.Type,
                                      targetsFeedIds: FeedIds = [],
+                                     targetFeedsExtraData: [String: String]? = nil,
                                      completion: @escaping ReactionCompletion<EmptyReactionExtraData, U>) -> Cancellable {
         return add(reactionToParentReaction: parentReaction,
                    kindOf: kind,
                    extraData: EmptyReactionExtraData.shared,
                    userTypeOf: userType,
                    targetsFeedIds: targetsFeedIds,
+                   targetFeedsExtraData: targetFeedsExtraData,
                    completion: completion)
     }
     
@@ -106,6 +109,7 @@ extension Client {
                                      extraData: T,
                                      userTypeOf userType: U.Type,
                                      targetsFeedIds: FeedIds = [],
+                                     targetFeedsExtraData: [String: String]? = nil,
                                      completion: @escaping ReactionCompletion<T, U>) -> Cancellable {
             return add(reactionTo: parentReaction.activityId,
                        parentReactionId: parentReaction.id,
@@ -113,6 +117,7 @@ extension Client {
                        extraData: extraData,
                        userTypeOf: userType,
                        targetsFeedIds: targetsFeedIds,
+                       targetFeedsExtraData: targetFeedsExtraData,
                        completion: completion)
     }
     
