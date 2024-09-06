@@ -152,7 +152,7 @@ extension ReactionEndpoint {
              parentReactionId: String? = nil,
              kind: ReactionKind? = nil,
              data: AnyEncodable,
-             feedIds: FeedIdss,
+             feedIds: FeedIds,
              targetFeedsExtraData: [String: String]? = nil ) {
             self.activityId = activityId
             self.parentReactionId = parentReactionId
