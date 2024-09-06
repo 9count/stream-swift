@@ -14,8 +14,9 @@ enum ReactionEndpoint {
         _ parentReactionId: String?,
         _ kind: ReactionKind,
         _ data: ReactionExtraDataProtocol,
-        _ feedIds: FeedIds)
-    
+        _ feedIds: FeedIds,
+        _ targetFeedsExtraData: [String: String]?)
+
     case get(_ reactionId: String)
     case delete(_ reactionId: String)
     case update(_ reactionId: String, _ data: ReactionExtraDataProtocol, _ feedIds: FeedIds)
@@ -56,13 +57,14 @@ extension ReactionEndpoint: StreamTargetType {
     
     var task: Task {
         switch self {
-        case let .add(activityId, parentReactionId, kind, data, feedIds):
+        case let .add(activityId, parentReactionId, kind, data, feedIds, targetFeedsExtraData):
             return .requestJSONEncodable(ReactionAddParameters(activityId: activityId,
                                                                parentReactionId: parentReactionId,
                                                                kind: kind,
                                                                data: AnyEncodable(data),
-                                                               feedIds: feedIds))
-            
+                                                               feedIds: feedIds,
+                                                               targetFeedsExtraData: targetFeedsExtraData))
+
         case .get, .delete:
             return .requestPlain
             
@@ -86,7 +88,7 @@ extension ReactionEndpoint: StreamTargetType {
     
     var sampleJSON: String {
         switch self {
-        case .add(_, _, let kind, _, _):
+        case .add(_, _, let kind, _, _, _):
             return kind == "comment"
                 ? """
             {"created_at":"2018-12-27T13:02:03.013191Z","updated_at":"2018-12-27T13:02:03.013191Z","id":"50539e71-d6bf-422d-ad21-c8717df0c325","user_id":"eric","user":{"id":"eric","created_at":"2018-12-27T13:02:03.013191Z","updated_at":"2018-12-27T13:02:03.013191Z"},"kind":"comment","activity_id":"ce918867-0520-11e9-a11e-0a286b200b2e","data":{"text":"Hello!"},"parent":"","latest_children":{},"children_counts":{},"duration":"6.58ms"}
@@ -136,6 +138,7 @@ extension ReactionEndpoint {
             case parentReactionId = "parent"
             case data
             case feedIds = "target_feeds"
+            case targetFeedsExtraData = "target_feeds_extra_data"
         }
         
         var activityId: String?
@@ -143,17 +146,20 @@ extension ReactionEndpoint {
         var kind: ReactionKind?
         let data: AnyEncodable?
         let feedIds: FeedIds?
-        
+        let targetFeedsExtraData: [String: String]?
+
         init(activityId: String? = nil,
              parentReactionId: String? = nil,
              kind: ReactionKind? = nil,
              data: AnyEncodable,
-             feedIds: FeedIds) {
+             feedIds: FeedIdss,
+             targetFeedsExtraData: [String: String]? = nil ) {
             self.activityId = activityId
             self.parentReactionId = parentReactionId
             self.kind = kind
             self.data = data.encodable is EmptyReactionExtraData ? nil : data
             self.feedIds = feedIds.isEmpty ? nil : feedIds
+            self.targetFeedsExtraData = targetFeedsExtraData
         }
     }
 }
